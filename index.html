@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sipariş Takip Sistemi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- MOBILE MENU BUTTON -->
+  <div class="mobile-menu-btn" id="mobileBtn">☰</div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <h2>Sipariş Takip Sistemi</h2>
+
+    <ul class="menu">
+      <li id="tab_bekleyen" class="active" onclick="setTab('bekleyen')">Bekleyen</li>
+      <li id="tab_hazirlandi" onclick="setTab('hazirlandi')">Hazırlandı</li>
+      <li id="tab_kargolandi" onclick="setTab('kargolandi')">Kargolandı</li>
+      <li id="tab_iptal" onclick="setTab('iptal')">İptal Edilenler</li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content-area">
+
+    <!-- SEARCH BAR -->
+    <div class="top-bar">
+      <input id="searchInput" type="text" placeholder="Sipariş No / İsim / Telefon ara..." />
+      <button class="btn-search" onclick="searchOrders()">Ara</button>
+      <button class="btn-clear" onclick="clearSearch()">Temizle</button>
+    </div>
+
+    <!-- ORDERS TABLE -->
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>İsim</th>
+          <th>Ürün</th>
+          <th>Tutar</th>
+          <th>Durum</th>
+          <th>Kargo Kodu</th>
+          <th>Aç</th>
+        </tr>
+      </thead>
+      <tbody id="ordersBody"></tbody>
+    </table>
+
+    <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Daha Fazla Yükle</button>
+
+  </main>
+
+  <!-- ORDER MODAL -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+
+      <span class="close" onclick="closeModal()">&times;</span>
+
+      <h2>Sipariş Detayı</h2>
+      <div id="orderDetails"></div>
+
+      <!-- AKSİYON BUTONLARI (TAB'A GÖRE GÖSTER/GİZLE) -->
+      <div id="actionButtons" class="modal-btns">
+        <button id="btnHazirla" class="btn-primary" onclick="markPrepared()">Hazırlandı</button>
+        <button id="btnKargola" class="btn-secondary" onclick="openKargolaConfirm()">Kargola</button>
+        <button id="btnBarkod" class="btn-secondary" onclick="printLabel()">Barkod Kes</button>
+        <button id="btnDuzenle" class="btn-warning" onclick="enterEditMode()">Düzenle</button>
+        <button id="btnIptal" class="btn-danger" onclick="handleCancelClick()">İPTAL ET</button>
+      </div>
+
+      <!-- DÜZENLE BUTONLARI -->
+      <div id="editButtons" class="modal-btns" style="display:none;">
+        <button class="btn-secondary" onclick="saveEdit()">Kaydet</button>
+        <button class="btn-danger" onclick="cancelEdit()">Vazgeç</button>
+      </div>
+
+      <!-- İPTALİ GERİ AL -->
+      <div id="restoreButtons" class="modal-btns" style="display:none;">
+        <button class="btn-secondary" onclick="restoreOrder()">Geri Al</button>
+      </div>
+
+      <!-- BEKLEYEN / HAZIRLANDI İÇİN İPTAL FORMU -->
+      <div id="cancelForm" style="display:none;margin-top:20px;">
+        <h3>İptal Nedeni</h3>
+        <textarea id="iptalInput" placeholder="Neden iptal edildi?"></textarea>
+        <button class="btn-danger" onclick="confirmCancelNormal()">İptal Et</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- KARGOLA ONAY MODALI -->
+  <div id="kargolaConfirmModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeKargolaConfirm()">&times;</span>
+      <h2>Kargoya Gönder</h2>
+      <p>
+        Bu sipariş <strong>KARGOLANDI</strong> olarak işaretlenecek ve DHL'e iletilecektir.<br />
+        Bu işlem normal şartlarda <strong>geri alınamaz</strong> ve iptal durumunda
+        kargo firması ek ücret talep edebilir.
+      </p>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="confirmKargola()">Evet, Kargola</button>
+        <button class="btn-danger" onclick="closeKargolaConfirm()">Vazgeç</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KARGOLANDI İÇİN İPTAL ONAY MODALI -->
+  <div id="cargoCancelModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCargoCancelModal()">&times;</span>
+      <h2>Kargolanmış Siparişi İptal Et</h2>
+      <p>
+        Bu sipariş <strong>kargo firmasına gönderilmiş</strong> durumda.<br />
+        İptal işlemi sonucunda kargo firması tarafından <strong>ek ücretler</strong> talep edilebilir.
+      </p>
+      <h3>İptal Nedeni (zorunlu)</h3>
+      <textarea id="cargoCancelReason" placeholder="Neden iptal ediliyor?"></textarea>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="confirmCancelCargo()">İptal Et</button>
+        <button class="btn-danger" onclick="closeCargoCancelModal()">Vazgeç</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- QZ Tray (qz-tray.js dosyasını indirip yolu güncelle) -->
+  <script src="qz-tray.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
