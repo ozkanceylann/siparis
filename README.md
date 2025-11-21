@@ -1,2 +1,2 @@
-# siparis-sistemi
+# siparis-takip
 Sipariş hazırlama &amp; kargo sistemi
