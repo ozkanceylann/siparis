@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Ürün Yönetimi</title>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-3xl mx-auto p-6">
+    <div class="bg-white shadow rounded-2xl p-6 mb-6">
+      <h1 class="text-2xl font-bold mb-4">Ürün Ekle</h1>
+      <form id="urunForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Ürün Adı</label>
+          <input id="ad" type="text" class="w-full border rounded p-2" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Fiyat</label>
+          <input id="fiyat" type="number" step="0.01" class="w-full border rounded p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Stok</label>
+          <input id="stok" type="number" step="1" class="w-full border rounded p-2">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Açıklama</label>
+          <textarea id="aciklama" class="w-full border rounded p-2" rows="3"></textarea>
+        </div>
+        <div class="md:col-span-2">
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white rounded p-3 font-medium" type="submit">Kaydet</button>
+          <span id="urunSonuc" class="text-sm ml-3"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="bg-white shadow rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Ürün Listesi</h2>
+        <button id="yenile" class="text-sm px-3 py-2 border rounded">Yenile</button>
+      </div>
+      <div id="liste"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getProducts, addProduct, deleteProduct } from "./js/api.js";
+
+    const $ = (id) => document.getElementById(id);
+    const liste = $("liste");
+    const urunSonuc = $("urunSonuc");
+
+    async function renderProducts() {
+      liste.innerHTML = `<div class="text-sm text-gray-500">Yükleniyor...</div>`;
+      try {
+        const data = await getProducts();
+        if (!data.length) {
+          liste.innerHTML = `<div class="text-sm text-gray-500">Kayıt yok</div>`;
+          return;
+        }
+        const rows = data.map(p => `
+          <div class="flex items-center justify-between border-b py-3">
+            <div>
+              <div class="font-medium">${p.ad}</div>
+              <div class="text-xs text-gray-500">
+                ${p.fiyat != null ? `Fiyat: ${p.fiyat} | ` : ""}${p.stok != null ? `Stok: ${p.stok} | ` : ""}${p.aciklama ? `Açıklama: ${p.aciklama}` : ""}
+              </div>
+            </div>
+            <button data-id="${p.id}" class="sil text-red-600 text-sm px-3 py-1 border rounded">Sil</button>
+          </div>
+        `).join("");
+        liste.innerHTML = rows;
+
+        // Sil butonları
+        Array.from(document.querySelectorAll(".sil")).forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            if (!confirm("Bu ürünü silmek istediğine emin misin?")) return;
+            try {
+              await deleteProduct(id);
+              await renderProducts();
+            } catch (e) {
+              alert("Silme sırasında hata oluştu.");
+              console.error(e);
+            }
+          });
+        });
+
+      } catch (e) {
+        console.error(e);
+        liste.innerHTML = `<div class="text-sm text-red-600">Liste getirilemedi.</div>`;
+      }
+    }
+
+    $("urunForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      urunSonuc.textContent = "Kaydediliyor...";
+      try {
+        await addProduct({
+          ad: $("ad").value.trim(),
+          fiyat: $("fiyat").value ? Number($("fiyat").value) : null,
+          stok: $("stok").value ? Number($("stok").value) : null,
+          aciklama: $("aciklama").value.trim() || null
+        });
+        urunSonuc.className = "text-green-700";
+        urunSonuc.textContent = "Ürün eklendi.";
+        e.target.reset();
+        await renderProducts();
+      } catch (e2) {
+        console.error(e2);
+        urunSonuc.className = "text-red-700";
+        urunSonuc.textContent = "Kayıt sırasında hata oluştu.";
+      }
+    });
+
+    $("yenile").addEventListener("click", renderProducts);
+
+    // İlk yük
+    renderProducts();
+  </script>
+</body>
+</html>
