@@ -218,6 +218,21 @@ select:focus {
   to { transform: scale(1); opacity: 1 }
 }
 
+/* MOBİL DÜZENLEME – SİL BUTONU TAŞMASIN */
+@media (max-width: 480px) {
+  .diger-item {
+    grid-template-columns: 1fr 50px 45px 70px 50px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .diger-item .remove-btn {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
+
+
 /* =========================================================
    SCROLLBAR
 ========================================================= */

@@ -46,6 +46,26 @@ const popup = $("popup"),
   popupMsg = $("popupMsg"),
   popupClose = $("popupClose");
 
+// ===============================
+// POPUP FONKSİYONU EKLENTİSİ
+// ===============================
+function showPopup(msg, type="ok") {
+  popupMsg.textContent = msg;
+  popup.classList.remove("hidden");
+
+  if(type === "error") {
+    popupBox.style.borderColor = "#7b0e0e";
+    popupBox.style.color = "#ffb4b4";
+  } else {
+    popupBox.style.borderColor = "#1e2e45";
+    popupBox.style.color = "#e6f1ff";
+  }
+}
+// =======================================================
+// MENÜYÜ SIFIRLA 
+// =======================================================
+
+
 // =======================================================
 // GLOBALS
 // =======================================================
