@@ -14,6 +14,7 @@ const adEl = $("ad_soyad"),
   firmaEl = $("firma"),
   alanEl = $("siparisi_alan"),
   cokSatanContainer = $("cokSatanContainer"),
+  musteriNotuEl = $("musteri_notu"),
   digerSelect = $("digerSelect"),
   digerKgOptions = $("digerKgOptions"),
   digerAdet = $("digerAdet"),
@@ -392,7 +393,9 @@ $("form").onsubmit = async (e)=>{
 
   const siparisNo = siparisNoEl.value.trim() || null;
   const sehirAd = sehirEl.options[sehirEl.selectedIndex]?.textContent || "";
+  const sehirKodu = sehirEl.value || null;
   const ilceAd = ilceEl.value ? ilceEl.value.split("|")[2] : "";
+  const ilceKodu = ilceEl.value ? ilceEl.value.split("|")[1] : null;
 
   const secilen=[];
 
@@ -406,8 +409,12 @@ $("form").onsubmit = async (e)=>{
 
     secilen.push({
       id:u.id, ad:u.ad, kg,
-      fiyat: manualFreeMode?0:fiyat,
-      adet, toplam: manualFreeMode?0:fiyat*adet
+  // KG’ye göre doğru kargo_kg değerini ekliyoruz
+  kargo_kg: kg === 10 ? u.kargo_kg_10 : u.kargo_kg_5,
+
+  fiyat: manualFreeMode ? 0 : fiyat,
+  adet,
+  toplam: manualFreeMode ? 0 : fiyat * adet
     });
   });
 
@@ -426,15 +433,19 @@ $("form").onsubmit = async (e)=>{
     musteri_adres:adresEl.value,
     sehir:sehirAd,
     ilce:ilceAd,
+    sehir_kodu: sehirKodu,
+    ilce_kodu: ilceKodu,
     firma:firmaEl.value,
     siparis_alan:alanEl.value,
     secilen_urunler:JSON.stringify(secilen),
     toplam_tutar:manualFreeMode?0:Number(toplamEl.value),
     odeme_turu:manualFreeMode?null:odemeEl.value,
-    notlar:notlarEl.value
+    notlar:notlarEl.value,
+    musteri_notu: musteriNotuEl.value || ""
   };
 
   try{
+    console.log("GÖNDERİLEN PAYLOAD:", kayit);
     await insertFormSiparis(kayit);
     sonucEl.className="text-sm text-emerald-400";
     sonucEl.textContent="Gönderildi.";
@@ -482,6 +493,7 @@ async function loadSiparisByNo() {
     adEl.value = d.ad_soyad || "";
     adresEl.value = d.adres || "";
     notlarEl.value = d.notlar || "";
+    if (d.musteri_notu) musteriNotuEl.value = d.musteri_notu;
 
     // --- 4) Firma yükle ---
     if (d.firma) {

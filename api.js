@@ -78,9 +78,10 @@ async function getDistricts(cityId) {
 // =======================================================
 async function getUrunler(firma) {
   return sbFetch("urunler", {
-    query: `firma=eq.${encodeURIComponent(firma)}&aktif=is.true&select=id,ad,fiyat_10,fiyat_5,cok_satan&order=ad.asc`,
+    query: `firma=eq.${encodeURIComponent(firma)}&aktif=is.true&select=id,ad,fiyat_10,fiyat_5,kargo_kg_10,kargo_kg_5,cok_satan&order=ad.asc`,
   });
 }
+
 
 // =======================================================
 // TELEFON → MÜŞTERİ lookup
