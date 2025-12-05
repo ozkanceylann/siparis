@@ -218,13 +218,20 @@ function renderKgRow(u,kg,fiyat){
 
 function renderDigerDropdown(){
   digerSelect.innerHTML="";
+  
   digerUrunler.forEach(u=>{
-    const opt=document.createElement("option");
-    opt.value=u.id; opt.textContent=u.ad;
+    const opt = document.createElement("option");
+
+    // ÜRÜN ADI + 10 KG FİYATI GÖRÜNÜR
+    opt.value = u.id;
+    opt.textContent = `${u.ad}  —  ${u.fiyat_10} TL (10 kg)`;
+
     digerSelect.appendChild(opt);
   });
+
   updateDigerKgOptions();
 }
+
 function updateDigerKgOptions(){
   const id=Number(digerSelect.value);
   const u=digerUrunler.find(x=>x.id===id);
@@ -407,6 +414,7 @@ $("form").onsubmit = async (e)=>{
     const u=cokSatanUrunler.find(x=>x.id==id);
     const fiyat = kg===10 ? u.fiyat_10 : u.fiyat_5;
 
+
     secilen.push({
       id:u.id, ad:u.ad, kg,
   // KG’ye göre doğru kargo_kg değerini ekliyoruz
@@ -418,14 +426,28 @@ $("form").onsubmit = async (e)=>{
     });
   });
 
-  digerSecimler.forEach(x=>{
-    secilen.push({
-      id:x.id, ad:x.ad, kg:x.kg,
-      fiyat: manualFreeMode?0:x.fiyat,
-      adet:x.adet, toplam: manualFreeMode?0:x.toplam
-    });
-  });
+digerSecimler.forEach(x=>{
+  const u = digerUrunler.find(item => item.id === x.id);
 
+  secilen.push({
+    id: x.id,
+    ad: x.ad,
+    kg: x.kg,
+
+    // BURAYA EKLENEN KRİTİK SATIR:
+    kargo_kg: x.kg === 10 ? u.kargo_kg_10 : u.kargo_kg_5,
+
+    fiyat: manualFreeMode ? 0 : x.fiyat,
+    adet: x.adet,
+    toplam: manualFreeMode ? 0 : x.toplam
+  });
+});
+      // ÜRÜN BİLGİSİ DÜZ YAZI OLUŞTUR
+const urunBilgisiMetni = secilen
+  .map(u => `${u.ad} ${u.kg} kg ${u.adet} adet`)
+  .join("\n");
+
+  
   const kayit={
     siparis_no:siparisNo,
     musteri_tel:telEl.value,
@@ -437,6 +459,7 @@ $("form").onsubmit = async (e)=>{
     ilce_kodu: ilceKodu,
     firma:firmaEl.value,
     siparis_alan:alanEl.value,
+    urun_bilgisi: urunBilgisiMetni,
     secilen_urunler:JSON.stringify(secilen),
     toplam_tutar:manualFreeMode?0:Number(toplamEl.value),
     odeme_turu:manualFreeMode?null:odemeEl.value,
