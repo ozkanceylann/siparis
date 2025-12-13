@@ -1053,7 +1053,7 @@ ordersList.addEventListener("click", (e)=>{
 });
 
 // =======================================================
-// 🍏 iOS – Ana Ekrana Ekle Popup
+// 🍏 iOS – Ana Ekrana Ekle Popup (STABLE)
 // =======================================================
 
 (function iosAddToHomePopup() {
@@ -1062,21 +1062,22 @@ ordersList.addEventListener("click", (e)=>{
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   const isStandalone = window.navigator.standalone === true;
 
-  // sadece iOS Safari + ana ekrana ekli değilse
   if (!isIos || !isSafari || isStandalone) return;
-
-  // daha önce gösterildiyse tekrar gösterme
   if (localStorage.getItem("iosA2HShown")) return;
 
-  // mevcut popup sistemini kullan
-  showPopup(`
-    <b>📲 Uygulama gibi kullanmak için</b><br><br>
-    Safari alt menüsünden <br>
-    <b>Paylaş</b> → <b>Ana Ekrana Ekle</b><br><br>
-    Böylece tam ekran, adres çubuğu olmadan açılır.
-  `, "error"); // 🔴 kırmızı kenarlık
+  // 🔥 sayfa + diğer popup’lar bitsin
+  setTimeout(() => {
 
-  localStorage.setItem("iosA2HShown", "1");
+    showPopup(`
+      <b>📲 Uygulama gibi kullanmak için</b><br><br>
+      Safari alt menüsünden <br>
+      <b>Paylaş</b> → <b>Ana Ekrana Ekle</b><br><br>
+      Böylece tam ekran, adres çubuğu olmadan açılır.
+    `, "error"); // 🔴 kırmızı kenarlık
+
+    localStorage.setItem("iosA2HShown", "1");
+
+  }, 1200); // ⏱ 1.2 saniye gecikme
 
 })();
 
