@@ -1,0 +1,366 @@
+/* =========================================================
+   GENEL TEMA
+========================================================= */
+:root {
+  --bg-page:#07101F;
+  --bg-card:#0D1B2E;
+  --bg-input:#0A1727;
+  --bd-muted:#1E2E45;
+  --txt:#E6F1FF;
+  --txt-dim:#9BB3D1;
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--txt);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--bd-muted);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.3);
+}
+
+/* =========================================================
+   INPUT / BUTTON
+========================================================= */
+.inpt {
+  background: var(--bg-input);
+  border: 1px solid var(--bd-muted);
+  color: var(--txt);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.inpt:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.35);
+}
+
+.inpt::placeholder {
+  color: var(--txt-dim);
+}
+
+/* Chip */
+.chip {
+  border: 1px solid var(--bd-muted);
+  background: #0e182b;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--txt-dim);
+}
+
+/* =========================================================
+   SELECT
+========================================================= */
+select {
+  background: var(--bg-input) !important;
+  color: var(--txt) !important;
+  border-color: var(--bd-muted) !important;
+}
+
+select option {
+  background: var(--bg-input) !important;
+  color: var(--txt) !important;
+}
+
+select:focus {
+  outline: none;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.35);
+}
+
+/* =========================================================
+   ÜRÜN KUTULARI
+========================================================= */
+
+.product-box {
+  background: var(--bg-card);
+  border: 1px solid var(--bd-muted);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.product-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0B1626;
+  border: 1px solid var(--bd-muted);
+  border-radius: 10px;
+  padding: 8px 10px;
+  gap: 10px;
+}
+
+.product-line label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kg-adet {
+  background: var(--bg-input);
+  border: 1px solid var(--bd-muted);
+  color: var(--txt);
+  width: 60px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.kg-adet:focus {
+  outline: none;
+  border-color: #3B82F6;
+}
+
+/* =========================================================
+   DİĞER ÜRÜNLER LİSTESİ
+========================================================= */
+
+.diger-item {
+  background: #0B1626;
+  border: 1px solid var(--bd-muted);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr 70px 60px 100px 60px;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.diger-item > div:nth-child(1) { font-weight: 500; }
+.diger-item > div:nth-child(4) { text-align: right; font-weight: 600; }
+
+.diger-item .remove-btn {
+  background: #7b0e0e;
+  color: white;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+}
+
+.diger-item .remove-btn:hover { background: #a31414; }
+
+/* =========================================================
+   ÜCRETSİZ / DEĞİŞİM BUTONU
+========================================================= */
+
+#btnUcretsiz {
+  transition: 0.2s;
+  font-weight: 600;
+  border-radius: 12px;
+  font-size: 10px;
+  padding: 6px 10px;
+  margin-top: 8px;
+  align-self: flex-end;
+  width: auto;
+}
+
+#btnUcretsiz:hover { transform: scale(1.02); }
+
+/* =========================================================
+   MODERN POPUP
+========================================================= */
+
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup.hidden { display: none; }
+
+.popup-box {
+  background: #0d1b2e;
+  border: 1px solid #1e2e45;
+  padding: 24px;
+  border-radius: 14px;
+  width: 320px;
+  text-align: center;
+  color: #e6f1ff;
+  animation: popIn .25s ease-out;
+}
+
+.popup-close {
+  margin-top: 20px;
+  background: #1e2e45;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #e6f1ff;
+}
+
+@keyframes popIn {
+  from { transform: scale(.85); opacity: 0 }
+  to { transform: scale(1); opacity: 1 }
+}
+
+/* MOBİL DÜZENLEME – SİL BUTONU TAŞMASIN */
+@media (max-width: 480px) {
+  .diger-item {
+    grid-template-columns: 1fr 50px 45px 70px 50px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .diger-item .remove-btn {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
+
+
+/* ==========================================
+   📱 MOBİL – SİPARİŞ LİSTESİ MİNİMAL
+========================================== */
+@media (max-width: 640px) {
+
+  /* Başlık ve satır: 4 kolon */
+  #ordersModal .grid-cols-\[70px_1fr_110px_100px_120px_100px_140px_80px\],
+  #ordersList > div {
+    grid-template-columns: 1fr 0.5fr 1.1fr !important;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* GİZLENECEK KOLONLAR */
+  /* Sipariş No */
+  #ordersList > div > div:nth-child(1),
+  /* Telefon */
+  #ordersList > div > div:nth-child(3),
+  /* Durum */
+  #ordersList > div > div:nth-child(5),
+  /* Kargo Kod */
+  #ordersList > div > div:nth-child(7),
+  /* Takip */
+  #ordersList > div > div:nth-child(8) {
+    display: none;
+  }
+
+  /* Başlıkta da aynı kolonları gizle */
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(1),
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(3),
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(5),
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(7),
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(8) 
+  {
+    display: none;
+  }
+
+  /* Firma vurgulu */
+  #ordersList > div > div:nth-child(4) {
+    font-weight: 600;
+    color: #a7f3d0; /* emerald-200 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Müşteri adı kısalt */
+  #ordersList > div > div:nth-child(2) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Teslim durumu */
+  #ordersList > div > div:nth-child(6) {
+    text-align: center;
+  }
+
+  /* ✏️ Düzenle butonu */
+    /* Düzenle butonu SABİT */
+  #ordersList .edit-btn {
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+}
+/* ==========================================
+   📱 MOBİL – TESLİM YERİNE DURUM (shipmentStatus)
+========================================== */
+@media (max-width: 640px) {
+
+  /* Başlıkta "Teslim?" yerine "Durum" göster */
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(6) {
+    display: none !important; /* Teslim? */
+  }
+
+  #ordersModal .px-4.pt-3.pb-2 > div:nth-child(5) {
+    display: block !important; /* Durum */
+  }
+
+  /* Satırlarda Teslim badge gizli kalsın */
+  #ordersList > div > div:nth-child(6) {
+    display: none !important;
+  }
+
+  /* Satırlarda shipmentStatus GÖRÜNSÜN */
+  #ordersList > div > div:nth-child(5) {
+    display: block !important;
+    font-size: 10px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Mobil grid: Müşteri | Firma | Durum */
+  #ordersList > div {
+    grid-template-columns: 1.3fr 1.4fr 1fr !important;
+  }
+}
+
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: #1F2D40; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #293954; }
+@media (max-width: 640px) {
+
+  /* Kart referansı */
+  #ordersList > div {
+    position: relative;
+  }
+
+  /* Varsayılan: teslim edilmemiş (isDelivered = false) */
+  #ordersList > div::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 5px;
+    border-radius: 5px;
+    background: #ef4444; /* kırmızı */
+  }
+
+  /* isDelivered === true → yeşil */
+  #ordersList > div:has(.bg-green-700)::before {
+    background: #22c55e;
+  }
+
+}

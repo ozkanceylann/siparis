@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sipariş Yönetimi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body class="bg-slate-900 text-slate-200">
+
+  <!-- ÜST MENÜ -->
+  <div class="flex items-center justify-between px-6 py-4 bg-slate-800 border-b border-slate-700">
+    <div class="flex gap-3">
+      <a href="/index.html"
+         class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold">
+        📝 Formu Aç
+      </a>
+
+      <button id="btnYukle" 
+        class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded-lg font-semibold">
+        📦 Siparişleri Yükle
+      </button>
+    </div>
+
+    <div class="text-sm opacity-80" id="currentUserText">Kullanıcı: —</div>
+  </div>
+
+  <!-- ARAMA & FİLTRE -->
+  <div class="max-w-5xl mx-auto p-6">
+
+    <div class="flex flex-wrap gap-4 mb-6">
+
+      <!-- Arama -->
+      <input id="araInput"
+             placeholder="Ara: müşteri adı, telefon, sipariş no"
+             class="px-3 py-2 bg-slate-800 border border-slate-700 rounded w-full md:w-1/2">
+
+      <!-- Filtre -->
+      <select id="filtreSelect"
+              class="px-3 py-2 bg-slate-800 border border-slate-700 rounded w-full md:w-40">
+        <option value="hepsi">Hepsi</option>
+        <option value="edilmedi">Teslim Edilmedi</option>
+        <option value="edildi">Teslim Edildi</option>
+      </select>
+
+      <!-- Sıralama -->
+      <select id="siralaSelect"
+              class="px-3 py-2 bg-slate-800 border border-slate-700 rounded w-full md:w-40">
+        <option value="yeni">Yeni → Eski</option>
+        <option value="eski">Eski → Yeni</option>
+      </select>
+
+    </div>
+
+    <!-- TABLO BAŞLIKLARI -->
+    <div class="grid grid-cols-6 gap-4 font-bold text-slate-300 border-b border-slate-700 pb-2">
+      <div>Sipariş No</div>
+      <div>Müşteri</div>
+      <div>Telefon</div>
+      <div>Durum</div>
+      <div>Teslim?</div>
+      <div>Kargo</div>
+    </div>
+
+    <!-- TABLO -->
+    <div id="siparisTable" class="space-y-3 mt-2"></div>
+
+  </div>
+
+  <!-- DETAY POPUP -->
+  <div id="detayPopup" class="fixed inset-0 bg-black/60 hidden items-center justify-center">
+    <div class="bg-slate-800 p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto border border-slate-600">
+      <h2 class="text-xl font-bold mb-4">Sipariş Detayı</h2>
+      <div id="detayIcerik"></div>
+      <button id="detayKapat"
+              class="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded">
+        Kapat
+      </button>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+
+  <script>
+    const siparisTable = document.getElementById("siparisTable");
+    const araInput = document.getElementById("araInput");
+    const filtreSelect = document.getElementById("filtreSelect");
+    const siralaSelect = document.getElementById("siralaSelect");
+
+    const detayPopup = document.getElementById("detayPopup");
+    const detayIcerik = document.getElementById("detayIcerik");
+    const detayKapat = document.getElementById("detayKapat");
+
+    const user = JSON.parse(localStorage.getItem("siparisUser") || "{}");
+    document.getElementById("currentUserText").textContent = "Kullanıcı: " + (user?.username || "-");
+
+    let fullList = [];
+
+    async function getUserOrders(username) {
+      const tables = ["queen_siparisler", "esin_siparisler", "tasdipli_siparisler"];
+      let all = [];
+
+      for (let tbl of tables) {
+        const rows = await sbFetch(tbl, {
+          query: `siparis_alan=eq.${encodeURIComponent(username)}&select=*`
+        });
+        rows.forEach(r => r._tbl = tbl);
+        all.push(...rows);
+      }
+
+      return all;
+    }
+
+    function renderTable(list) {
+      siparisTable.innerHTML = list.map(o => `
+        <div class="grid grid-cols-6 gap-4 border-b border-slate-800 py-3 items-center 
+                    hover:bg-slate-800 cursor-pointer"
+             onclick="showDetay(${o.siparis_no}, '${o._tbl}')">
+
+          <div class="font-semibold">${o.siparis_no}</div>
+          <div>${o.ad_soyad || "-"}</div>
+          <div>${o.musteri_tel || "-"}</div>
+
+          <div>
+            <span class="px-2 py-1 rounded bg-slate-700 text-xs">
+              ${o.shipmentStatus || "—"}
+            </span>
+          </div>
+
+          <div>
+            ${o.isDelivered
+              ? `<span class="px-2 py-1 rounded bg-green-700 text-xs">✔ Teslim</span>`
+              : `<span class="px-2 py-1 rounded bg-red-700 text-xs">❌ Bekliyor</span>`
+            }
+          </div>
+
+          <div>
+            ${o.kargo_takip_url
+              ? `<a href="${o.kargo_takip_url}" target="_blank" class="text-blue-400 underline">Takip</a>`
+              : "-"
+            }
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function applyFilters() {
+      let list = [...fullList];
+
+      const arama = araInput.value.toLowerCase();
+      if (arama) {
+        list = list.filter(o =>
+          (o.ad_soyad || "").toLowerCase().includes(arama) ||
+          (o.musteri_tel || "").includes(arama) ||
+          String(o.siparis_no).includes(arama)
+        );
+      }
+
+      if (filtreSelect.value === "edildi") {
+        list = list.filter(o => o.isDelivered);
+      } else if (filtreSelect.value === "edilmedi") {
+        list = list.filter(o => !o.isDelivered);
+      }
+
+      if (siralaSelect.value === "yeni") {
+        list.sort((a, b) => b.siparis_no - a.siparis_no);
+      } else {
+        list.sort((a, b) => a.siparis_no - b.siparis_no);
+      }
+
+      renderTable(list);
+    }
+
+    // Siparişleri yükle
+    document.getElementById("btnYukle").onclick = async () => {
+      siparisTable.innerHTML = "Yükleniyor...";
+      fullList = await getUserOrders(user.username);
+
+      applyFilters();
+    };
+
+    araInput.oninput = applyFilters;
+    filtreSelect.onchange = applyFilters;
+    siralaSelect.onchange = applyFilters;
+
+    // SİPARİŞ DETAYI
+    window.showDetay = (no, tbl) => {
+      const o = fullList.find(x => x.siparis_no == no && x._tbl === tbl);
+
+      detayIcerik.innerHTML = `
+        <div><b>Sipariş No:</b> ${o.siparis_no}</div>
+        <div><b>Müşteri:</b> ${o.ad_soyad}</div>
+        <div><b>Telefon:</b> ${o.musteri_tel}</div>
+        <div><b>Adres:</b> ${o.adres}</div>
+        <div><b>Durum:</b> ${o.shipmentStatus}</div>
+        <div><b>Teslim Edildi:</b> ${o.isDelivered ? "✔ Evet" : "❌ Hayır"}</div>
+        <div><b>Kargo Takip:</b> ${o.kargo_takip_url 
+            ? `<a href="${o.kargo_takip_url}" class="underline text-blue-400" target="_blank">Takip Et</a>`
+            : "—"
+        }</div>
+        <div class="mt-2"><b>Ürünler:</b><br>${(o.urun_bilgisi || "").replace(/\n/g,"<br>")}</div>
+      `;
+
+      detayPopup.classList.remove("hidden");
+    };
+
+    detayKapat.onclick = ()=> detayPopup.classList.add("hidden");
+  </script>
+
+</body>
+</html>
