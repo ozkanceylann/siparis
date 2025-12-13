@@ -1051,6 +1051,35 @@ ordersList.addEventListener("click", (e)=>{
   ordersModal.classList.add("hidden");
   loadSiparisByNo(); // siparişi forma yükle
 });
+
+// =======================================================
+// 🍏 iOS – Ana Ekrana Ekle Popup
+// =======================================================
+
+(function iosAddToHomePopup() {
+
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+
+  // sadece iOS Safari + ana ekrana ekli değilse
+  if (!isIos || !isSafari || isStandalone) return;
+
+  // daha önce gösterildiyse tekrar gösterme
+  if (localStorage.getItem("iosA2HShown")) return;
+
+  // mevcut popup sistemini kullan
+  showPopup(`
+    <b>📲 Uygulama gibi kullanmak için</b><br><br>
+    Safari alt menüsünden <br>
+    <b>Paylaş</b> → <b>Ana Ekrana Ekle</b><br><br>
+    Böylece tam ekran, adres çubuğu olmadan açılır.
+  `, "error"); // 🔴 kırmızı kenarlık
+
+  localStorage.setItem("iosA2HShown", "1");
+
+})();
+
 // =======================================================
 // 🔁 SERVICE WORKER REGISTER (APP.JS İÇİN DOĞRU YER)
 // =======================================================
