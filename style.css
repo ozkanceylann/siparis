@@ -344,7 +344,9 @@ select:focus {
   /* Kart referansı */
   #ordersList > div {
     position: relative;
+        padding-left: 12px; /* 👈 5px border + boşluk */
   }
+  
 
   /* Varsayılan: teslim edilmemiş (isDelivered = false) */
   #ordersList > div::before {
