@@ -294,28 +294,18 @@
 <!-- =========================== -->
 <script src="./api.js"></script>
 <script src="./app.js"></script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js").then(reg => {
+reg.addEventListener("updatefound", () => {
+  const newWorker = reg.installing;
 
-    // 🔁 Yeni SW bulunduğunda
-    reg.addEventListener("updatefound", () => {
-      const newWorker = reg.installing;
-      if (!newWorker) return;
-
-      newWorker.addEventListener("statechange", () => {
-        if (newWorker.state === "activated") {
-          // 🔥 Sessiz auto-refresh
-          if (navigator.serviceWorker.controller) {
-            location.reload();
-          }
-        }
-      });
-    });
-
+  newWorker.addEventListener("statechange", () => {
+    if (newWorker.state === "activated") {
+      if (navigator.serviceWorker.controller) {
+        location.reload();
+      }
+    }
   });
-}
-</script>
+});
+
 
 
 </body>
