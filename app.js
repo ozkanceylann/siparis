@@ -77,7 +77,7 @@ async function getUserOrdersByAssignee(username){
   const all = [];
   for(const t of tables){
     const rows = await sbFetch(t, {
-      query: `siparis_alan=eq.${encodeURIComponent(username)}&select=*`
+      query: `siparis_alan=ilike.${encodeURIComponent(username.trim())}&select=*`
     });
     rows.forEach(r => r._tbl = t);
     all.push(...rows);
@@ -780,7 +780,7 @@ async function getUserOrdersByAssignee(username){
   const all = [];
   for(const t of tables){
     const rows = await sbFetch(t, {
-      query: `siparis_alan=eq.${encodeURIComponent(username)}&select=*`
+      query: `siparis_alan=ilike.${encodeURIComponent(username.trim())}&select=*`
     });
     rows.forEach(r => r._tbl = t);
     all.push(...rows);
