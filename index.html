@@ -294,17 +294,24 @@
 <!-- =========================== -->
 <script src="./api.js"></script>
 <script src="./app.js"></script>
-reg.addEventListener("updatefound", () => {
-  const newWorker = reg.installing;
+<script>
+if ("serviceWorker" in navigator) {
 
-  newWorker.addEventListener("statechange", () => {
-    if (newWorker.state === "activated") {
-      if (navigator.serviceWorker.controller) {
-        location.reload();
-      }
+  navigator.serviceWorker.register("/service-worker.js");
+
+  let reloaded = false;
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type === "SW_UPDATED" && !reloaded) {
+      reloaded = true;
+      console.log("🚀 Yeni deploy algılandı → reload");
+      window.location.reload();
     }
   });
-});
+
+}
+</script>
+
 
 
 
