@@ -1,10 +1,12 @@
 // =======================================================
-// 🔁 AUTO UPDATE + AUTO RELOAD SERVICE WORKER (FINAL)
+// 🚀 SIPARIS – FINAL SERVICE WORKER
+// Auto update + auto reload + safe cache
 // =======================================================
 
-// 🔥 Cache versiyonu otomatik (deploy sonrası kırılır)
+// 🔥 Her deploy'da cache otomatik kırılır
 const CACHE = "siparis-cache-" + Date.now();
 
+// Cache'lencek STATİK dosyalar
 const ASSETS = [
   "/",
   "/index.html",
@@ -19,18 +21,19 @@ const ASSETS = [
 // -------------------------------------------------------
 // INSTALL → beklemeden aktif ol
 // -------------------------------------------------------
-self.addEventListener("install", (e) => {
-  self.skipWaiting(); // 🔥 yeni SW anında aktif
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS))
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
+
+  event.waitUntil(
+    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
   );
 });
 
 // -------------------------------------------------------
 // ACTIVATE → eski cache’leri sil + sayfaları ele geçir
 // -------------------------------------------------------
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
@@ -38,7 +41,7 @@ self.addEventListener("activate", (e) => {
     ).then(() => self.clients.claim())
   );
 
-  // 🔔 Sayfalara "yeni deploy" bildir
+  // 🔔 Açık sayfalara "yeni deploy" mesajı gönder
   self.clients.matchAll({ type: "window" }).then(clients => {
     clients.forEach(client => {
       client.postMessage({ type: "SW_UPDATED" });
@@ -47,25 +50,32 @@ self.addEventListener("activate", (e) => {
 });
 
 // -------------------------------------------------------
-// FETCH
-// - HTML → HER ZAMAN network (eski sayfa sorunu biter)
-// - Diğerleri → network first + cache fallback
+// FETCH STRATEGY
 // -------------------------------------------------------
-self.addEventListener("fetch", (e) => {
+self.addEventListener("fetch", (event) => {
 
-  // HTML navigasyonlar asla cache’ten gelmesin
-  if (e.request.mode === "navigate") {
-    e.respondWith(fetch(e.request));
+  const req = event.request;
+
+  // ❌ POST / PUT / DELETE → ASLA cache'e girmez
+  if (req.method !== "GET") {
+    event.respondWith(fetch(req));
     return;
   }
 
-  e.respondWith(
-    fetch(e.request)
+  // 🌐 HTML sayfalar → HER ZAMAN network
+  if (req.mode === "navigate") {
+    event.respondWith(fetch(req));
+    return;
+  }
+
+  // 📦 Diğer GET istekler → network first + cache fallback
+  event.respondWith(
+    fetch(req)
       .then(res => {
         const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        caches.open(CACHE).then(cache => cache.put(req, copy));
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(req))
   );
 });
