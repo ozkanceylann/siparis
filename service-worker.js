@@ -1,8 +1,9 @@
 // =======================================================
-// 🔁 AUTO UPDATE SERVICE WORKER
+// 🔁 AUTO UPDATE + AUTO RELOAD SERVICE WORKER (FINAL)
 // =======================================================
 
-const CACHE = "siparis-cache-v1"; // versiyon önemli değil artık
+// 🔥 Cache versiyonu otomatik (deploy sonrası kırılır)
+const CACHE = "siparis-cache-" + Date.now();
 
 const ASSETS = [
   "/",
@@ -16,7 +17,7 @@ const ASSETS = [
 ];
 
 // -------------------------------------------------------
-// INSTALL → cache hazırla ama BEKLEME
+// INSTALL → beklemeden aktif ol
 // -------------------------------------------------------
 self.addEventListener("install", (e) => {
   self.skipWaiting(); // 🔥 yeni SW anında aktif
@@ -26,7 +27,7 @@ self.addEventListener("install", (e) => {
 });
 
 // -------------------------------------------------------
-// ACTIVATE → eski cache’leri SİL
+// ACTIVATE → eski cache’leri sil + sayfaları ele geçir
 // -------------------------------------------------------
 self.addEventListener("activate", (e) => {
   e.waitUntil(
@@ -34,14 +35,30 @@ self.addEventListener("activate", (e) => {
       Promise.all(
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       )
-    ).then(() => self.clients.claim()) // 🔥 tüm tab’leri ele geçir
+    ).then(() => self.clients.claim())
   );
+
+  // 🔔 Sayfalara "yeni deploy" bildir
+  self.clients.matchAll({ type: "window" }).then(clients => {
+    clients.forEach(client => {
+      client.postMessage({ type: "SW_UPDATED" });
+    });
+  });
 });
 
 // -------------------------------------------------------
-// FETCH → Network first (her zaman GITHUB)
+// FETCH
+// - HTML → HER ZAMAN network (eski sayfa sorunu biter)
+// - Diğerleri → network first + cache fallback
 // -------------------------------------------------------
 self.addEventListener("fetch", (e) => {
+
+  // HTML navigasyonlar asla cache’ten gelmesin
+  if (e.request.mode === "navigate") {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
   e.respondWith(
     fetch(e.request)
       .then(res => {
