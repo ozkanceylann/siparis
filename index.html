@@ -304,13 +304,14 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("message", (event) => {
     if (event.data?.type === "SW_UPDATED" && !reloaded) {
       reloaded = true;
-      console.log("🚀 Yeni deploy algılandı → reload");
+      console.log("🚀 Yeni deploy algılandı → otomatik reload");
       window.location.reload();
     }
   });
 
 }
 </script>
+
 
 
 
