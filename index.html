@@ -295,15 +295,28 @@
 <script src="./api.js"></script>
 <script src="./app.js"></script>
 <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then(() => console.log("SW başarıyla yüklendi"))
-        .catch(err => console.log("SW hatası:", err));
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js").then(reg => {
+
+    // 🔁 Yeni SW bulunduğunda
+    reg.addEventListener("updatefound", () => {
+      const newWorker = reg.installing;
+      if (!newWorker) return;
+
+      newWorker.addEventListener("statechange", () => {
+        if (newWorker.state === "activated") {
+          // 🔥 Sessiz auto-refresh
+          if (navigator.serviceWorker.controller) {
+            location.reload();
+          }
+        }
+      });
     });
-  }
+
+  });
+}
 </script>
+
 
 </body>
 </html>
