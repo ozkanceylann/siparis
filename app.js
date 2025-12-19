@@ -73,7 +73,7 @@ function showPopup(msg, type="ok") {
 // SİPARİŞLERİM
 // =======================================================
 async function getUserOrdersByAssignee(username){
-  const tables = ["queen_siparisler","esin_siparisler","tasdipli_siparisler"];
+  const tables = ["queen_siparisler","esin_siparisler","tasdipli_siparisler","tad_siparisler"];
   const all = [];
   for(const t of tables){
     const rows = await sbFetch(t, {
@@ -747,7 +747,7 @@ async function initApp(){
   if(appInitialized) return;
   appInitialized=true;
 
-  fillSelect(firmaEl, ["Tasdipli","Esin","Queen"], "Firma seçiniz…");
+  fillSelect(firmaEl, ["Tasdipli","Esin","Queen","Tad"], "Firma seçiniz…");
 
   setSiparisiAlan(currentUser);
   await loadCities();
@@ -776,7 +776,7 @@ function isDeliveredComputed(o){
 
 // 3 tablodan sipariş çek (siparis_alan = formdaki "Siparişi Alan")
 async function getUserOrdersByAssignee(username){
-  const tables = ["queen_siparisler","esin_siparisler","tasdipli_siparisler"];
+  const tables = ["queen_siparisler","esin_siparisler","tasdipli_siparisler","tad_siparisler"];
   const all = [];
   for(const t of tables){
     const rows = await sbFetch(t, {
